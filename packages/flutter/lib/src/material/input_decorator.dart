@@ -1436,6 +1436,17 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     }
     return lightEnabled;
   }
+  
+  Color _getDefaultIconColor(ThemeData themeData) {
+    switch (themeData.brightness) {
+      case Brightness.dark:
+        return Colors.white70;
+      case Brightness.light:
+        return Colors.black45;
+      default:
+        return themeData.iconTheme.color;
+    }
+  }
 
   // True if the label will be shown and the hint will not.
   // If we're not focused, there's no value, and labelText was provided,
@@ -1556,7 +1567,7 @@ class _InputDecoratorState extends State<InputDecorator> with TickerProviderStat
     final Color activeColor = _getActiveColor(themeData);
     final bool decorationIsDense = decoration.isDense == true; // isDense == null, same as false
     final double iconSize = decorationIsDense ? 18.0 : 24.0;
-    final Color iconColor = isFocused ? activeColor : Colors.black45;
+    final Color iconColor = isFocused ? activeColor : _getDefaultIconColor(themeData);
 
     final Widget icon = decoration.icon == null ? null :
       new Padding(
@@ -1881,11 +1892,11 @@ class InputDecoration {
   /// [IconTheme] and therefore does not need to be explicitly given in the
   /// icon widget.
   ///
-  /// The suffix icon is not padded. To pad the leading edge of the prefix icon:
+  /// The suffix icon is not padded. To pad the leading edge of the suffix icon:
   /// ```dart
-  /// prefixIcon: new Padding(
+  /// suffixIcon: new Padding(
   ///   padding: const EdgeInsetsDirectional.only(start: 16.0),
-  ///   child: myIcon,
+  ///   child: new Icon(Icons.search),
   /// )
   /// ```
   ///
@@ -2304,32 +2315,19 @@ class InputDecorationTheme extends Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder description) {
     super.debugFillProperties(description);
-    final InputDecorationTheme defaultTheme = const InputDecorationTheme();
-    description.add(new DiagnosticsProperty<TextStyle>('labelStyle', labelStyle,
-        defaultValue: defaultTheme.labelStyle));
-    description.add(new DiagnosticsProperty<TextStyle>('helperStyle', helperStyle,
-        defaultValue: defaultTheme.helperStyle));
-    description.add(new DiagnosticsProperty<TextStyle>('hintStyle', hintStyle,
-        defaultValue: defaultTheme.hintStyle));
-    description.add(new DiagnosticsProperty<TextStyle>('errorStyle', errorStyle,
-        defaultValue: defaultTheme.errorStyle));
-    description
-        .add(new DiagnosticsProperty<bool>('isDense', isDense, defaultValue: defaultTheme.isDense));
-    description.add(new DiagnosticsProperty<EdgeInsets>('contentPadding', contentPadding,
-        defaultValue: defaultTheme.contentPadding));
-    description.add(new DiagnosticsProperty<bool>('isCollapsed', isCollapsed,
-        defaultValue: defaultTheme.isCollapsed));
-    description.add(new DiagnosticsProperty<TextStyle>('prefixStyle', prefixStyle,
-        defaultValue: defaultTheme.prefixStyle));
-    description.add(new DiagnosticsProperty<TextStyle>('suffixStyle', suffixStyle,
-        defaultValue: defaultTheme.suffixStyle));
-    description.add(new DiagnosticsProperty<TextStyle>('counterStyle', counterStyle,
-        defaultValue: defaultTheme.counterStyle));
-    description
-        .add(new DiagnosticsProperty<bool>('filled', filled, defaultValue: defaultTheme.filled));
-    description.add(new DiagnosticsProperty<Color>('fillColor', fillColor,
-        defaultValue: defaultTheme.fillColor));
-    description.add(
-        new DiagnosticsProperty<InputBorder>('border', border, defaultValue: defaultTheme.border));
+    const InputDecorationTheme defaultTheme = const InputDecorationTheme();
+    description.add(new DiagnosticsProperty<TextStyle>('labelStyle', labelStyle, defaultValue: defaultTheme.labelStyle));
+    description.add(new DiagnosticsProperty<TextStyle>('helperStyle', helperStyle, defaultValue: defaultTheme.helperStyle));
+    description.add(new DiagnosticsProperty<TextStyle>('hintStyle', hintStyle, defaultValue: defaultTheme.hintStyle));
+    description.add(new DiagnosticsProperty<TextStyle>('errorStyle', errorStyle, defaultValue: defaultTheme.errorStyle));
+    description.add(new DiagnosticsProperty<bool>('isDense', isDense, defaultValue: defaultTheme.isDense));
+    description.add(new DiagnosticsProperty<EdgeInsets>('contentPadding', contentPadding, defaultValue: defaultTheme.contentPadding));
+    description.add(new DiagnosticsProperty<bool>('isCollapsed', isCollapsed, defaultValue: defaultTheme.isCollapsed));
+    description.add(new DiagnosticsProperty<TextStyle>('prefixStyle', prefixStyle, defaultValue: defaultTheme.prefixStyle));
+    description.add(new DiagnosticsProperty<TextStyle>('suffixStyle', suffixStyle, defaultValue: defaultTheme.suffixStyle));
+    description.add(new DiagnosticsProperty<TextStyle>('counterStyle', counterStyle, defaultValue: defaultTheme.counterStyle));
+    description.add(new DiagnosticsProperty<bool>('filled', filled, defaultValue: defaultTheme.filled));
+    description.add(new DiagnosticsProperty<Color>('fillColor', fillColor, defaultValue: defaultTheme.fillColor));
+    description.add(new DiagnosticsProperty<InputBorder>('border', border, defaultValue: defaultTheme.border));
   }
 }

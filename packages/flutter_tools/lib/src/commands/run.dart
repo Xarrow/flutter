@@ -147,6 +147,10 @@ class RunCommand extends RunCommandBase {
             'results out to "refresh_benchmark.json", and exit. This flag is\n'
             'intended for use in generating automated flutter benchmarks.');
 
+    argParser.addOption('output-dill',
+        hide: !verboseHelp,
+        help: 'Specify the path to frontend server output kernel file.');
+
     argParser.addOption(FlutterOptions.kExtraFrontEndOptions, hide: true);
     argParser.addOption(FlutterOptions.kExtraGenSnapshotOptions, hide: true);
   }
@@ -262,6 +266,7 @@ class RunCommand extends RunCommandBase {
           trackWidgetCreation: argResults['track-widget-creation'],
           projectRootPath: argResults['project-root'],
           packagesFilePath: globalResults['packages'],
+          dillOutputPath: argResults['output-dill'],
           ipv6: ipv6,
         );
       } catch (error) {
@@ -279,8 +284,26 @@ class RunCommand extends RunCommandBase {
     }
 
     for (Device device in devices) {
-      if (await device.isLocalEmulator && !isEmulatorBuildMode(getBuildMode()))
-        throwToolExit('${toTitleCase(getModeName(getBuildMode()))} mode is not supported for emulators.');
+      if (await device.isLocalEmulator) {
+        if (await device.supportsHardwareRendering) {
+          final bool enableSoftwareRendering = argResults['enable-software-rendering'] == true;
+          if (enableSoftwareRendering) {
+            printStatus(
+              'Using software rendering with device ${device.name}. You may get better performance '
+              'with hardware mode by configuring hardware rendering for your device.'
+            );
+          } else {
+            printStatus(
+              'Using hardware rendering with device ${device.name}. If you get graphics artifacts, '
+              'consider enabling software rendering with "--enable-software-rendering".'
+            );
+          }
+        }
+
+        if (!isEmulatorBuildMode(getBuildMode())) {
+          throwToolExit('${toTitleCase(getModeName(getBuildMode()))} mode is not supported for emulators.');
+        }
+      }
     }
 
     if (hotMode) {
@@ -301,6 +324,7 @@ class RunCommand extends RunCommandBase {
         device,
         previewDart2: argResults['preview-dart-2'],
         trackWidgetCreation: argResults['track-widget-creation'],
+        dillOutputPath: argResults['output-dill'],
       );
     }).toList();
 
@@ -314,6 +338,7 @@ class RunCommand extends RunCommandBase {
         applicationBinary: argResults['use-application-binary'],
         projectRootPath: argResults['project-root'],
         packagesFilePath: globalResults['packages'],
+        dillOutputPath: argResults['output-dill'],
         stayResident: stayResident,
         ipv6: ipv6,
       );
